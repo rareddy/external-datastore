@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: external-datastore
+objects:
+
+- apiVersion: servicecatalog.k8s.io/v1beta1
+  kind: ClusterServiceBroker
+  metadata:
+    name: external-datastore
+  spec:
+    url: http://external-datastore.external-datastore.svc.cluster.local
+    relistBehavior: Duration
+    relistDuration: 1m0s
+
+- kind: ServiceAccount
+  apiVersion: v1
+  metadata:
+    name: external-datastore
+    namespace: external-datastore
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: external-datastore
+    labels:
+      app: external-datastore
+  spec:
+    selector:
+      app: external-datastore
+    ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+
+- kind: ClusterRoleBinding
+  apiVersion: rbac.authorization.k8s.io/v1beta1
+  metadata:
+    name: external-datastore
+  groupNames:
+  subjects:
+  - kind: ServiceAccount
+    name: external-datastore
+    namespace: external-datastore
+  roleRef:
+    name: admin
+    kind: ClusterRole
+    apiGroup: rbac.authorization.k8s.io
+
+- kind: Deployment
+  apiVersion: extensions/v1beta1
+  metadata:
+    name: external-datastore
+    labels:
+      app: external-datastore
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: external-datastore
+    template:
+      metadata:
+        labels:
+          app: external-datastore
+      spec:
+        serviceAccountName: external-datastore
+        containers:
+        - name: service-external-datastore
+          image: ${IMAGE}
+          imagePullPolicy: Always
+          command:
+          - /opt/servicebroker/servicebroker
+          args:
+          - --port
+          - "8080"
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+
+parameters:
+- description: Name of the image to use
+  displayName: Image name
+  name: IMAGE
+  required: true
+  value: teiid/external-datastore:latest

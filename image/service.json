@@ -1,0 +1,110 @@
+    {
+      "name": "external-datastore",
+      "id": "5b333b4a-e37c-4391-9090-af59dfcaa1cc",
+      "description": "Provision a Connection to database like Oracle, MS-SQLServer, MySQL on your network.",
+      "tags": [
+        "no-sql",
+        "relational"
+      ],
+      "bindable": true,
+      "metadata": {
+        "provider": {
+          "name": "External DataSource"
+        },
+        "displayName": "External DataSource",
+        "imageUrl": "https://raw.githubusercontent.com/teiid/data-access-service-templates/master/clouddatabase.png"
+      },
+      "plan_updateable": false,
+      "plans": [
+        {
+          "name": "default",
+          "id": "72ea9445-8525-4750-8af0-0aee6be201ca",
+          "description": "Make a connection to External DataSource on Enterprise Network",
+          "free": true,
+          "metadata": {
+            "displayName": "default"
+          },
+          "schemas": {
+            "service_instance": {
+              "create": {
+                "parameters": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "properties": {
+                    "service-name": {
+                      "title": "service-name",
+                      "description": "Name of the service that should be created based on this action",
+                      "type": "string",
+                      "required": "true",
+                      "default": "external"
+                    },
+                    "namespace": {
+                      "title": "Namespace",
+                      "description": "Namespace where the Service proxy is being created (same as project name)",
+                      "type": "string",
+                      "required": "true",
+                      "default": "myproject"
+                    },
+                    "host": {
+                      "title": "Host Name",
+                      "description": "Host Name of the database Server(must be reachable from cloud)",
+                      "type": "string",
+                      "required": "true"
+                    },
+                    "port": {
+                      "title": "Port Number",
+                      "description": "Port Number for the database server",
+                      "type": "integer",
+                      "required": "true"
+                    },
+                    "database-name": {
+                      "title": "Database Name",
+                      "description": "Name of the Database connect to",
+                      "type": "string",
+                      "default": "sampledb",
+                      "required": "true"
+                    },
+                    "database-type": {
+                      "title": "Database type",
+                      "description": "Type of Database/DataSource",
+                      "type": "string",
+                      "enum": [
+                        "postgresql",
+                        "mysql",
+                        "mongodb",
+                        "oracle",
+                        "sqlserver"
+                      ],
+                      "default": "postgresql",
+                      "required": "true"
+                    }
+                  }
+                }
+              }
+            },
+            "service_binding": {
+              "create": {
+                "parameters": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "title": "User Name",
+                      "description": "User Name to use to connect to Database",
+                      "type": "string",
+                      "required": "true"
+                    },
+                    "password": {
+                      "title": "Password",
+                      "description": "Password to use to connect to Database",
+                      "type": "string",
+                      "required": "true"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
